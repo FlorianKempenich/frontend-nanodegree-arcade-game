@@ -79,7 +79,21 @@ var Engine = (function(global) {
    */
   function update(dt) {
     updateEntities(dt);
-    // checkCollisions();
+    if (collisionDetected()) {
+      reset()
+    };
+  }
+
+  function collisionDetected() {
+    const allEnemyCollisionCells = allEnemies.flatMap(enemy =>
+      enemy.collisionCells()
+    );
+    const playerCell = player.currentCell();
+    const enemyPlayerCollisionCells = allEnemyCollisionCells.filter(cell =>
+      _.isEqual(cell, playerCell)
+    );
+    const collision = enemyPlayerCollisionCells.length !== 0;
+    return collision;
   }
 
   /* This is called by the update function and loops through all of the
@@ -164,6 +178,20 @@ var Engine = (function(global) {
    * those sorts of things. It's only called once by the init() method.
    */
   function reset() {
+    const stopped = new StoppedEnemy(0, 330);
+
+    allEnemies = [
+      new Enemy(1, 0.8, "debug"),
+      new Enemy(2, 1.3),
+      new Enemy(2, 2),
+      new Enemy(3, 0.4),
+      new Enemy(3, 1.6)
+      // stopped
+    ];
+    player = new Player(2, 5);
+    allEnemies.forEach(enemy => enemy.init());
+    player.init();
+
     // noop
   }
 

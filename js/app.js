@@ -3,22 +3,33 @@ function resetXPosition() {
   this.x = offScreenRow * 2;
 }
 
+function findMatchingColumn(xPos) {
+  return Math.floor(xPos / Constants.colWidth);
+}
+
 class Renderable {
   constructor(sprite) {
     this.sprite = sprite;
   }
+
+  init() {
+    this.img = Resources.get(this.sprite);
+  }
+
   render() {
-    ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
+    ctx.drawImage(this.img, this.x, this.y);
   }
 }
 
 class Enemy extends Renderable {
   constructor(row, speed, debugName = "") {
     super("images/enemy-bug.png");
+    this.width = 101; // PNG Dimensions
 
     this.speed = speed;
     // 20 offset is due to shape of png img for the enemy-bug
-    this.y = row * Constants.rowHeight - 20;
+    this.row = row;
+    this.y = this.row * Constants.rowHeight - 20;
     this.x = undefined;
     this.debugName = debugName;
 
@@ -30,6 +41,35 @@ class Enemy extends Renderable {
     if (this.x >= Constants.width) {
       resetXPosition.call(this);
     }
+  }
+
+  collisionCells() {
+    const collisionRow = this.row;
+    const collisionColumnStart = findMatchingColumn(this.x);
+    const collisionColumnEnd = findMatchingColumn(this.x + this.img.width);
+
+    const collisionCells = [];
+    for (let col = collisionColumnStart; col <= collisionColumnEnd; col++) {
+      collisionCells.push({ col: col, row: collisionRow });
+    }
+
+    return collisionCells;
+  }
+
+  debug() {
+    if (this.debugName) {
+      console.log("" + this.collisionCells());
+    }
+  }
+}
+
+class StoppedEnemy extends Enemy {
+  constructor(row, xPos, debugName = "Stopped Enemy") {
+    super(row, 0, debugName);
+    this.x = xPos;
+  }
+  update(dt) {
+    // no-op
   }
 }
 
@@ -63,20 +103,17 @@ class Player extends Renderable {
         throw `Unknown direction: '${direction}'`;
     }
   }
+
   update() {
     this.x = this.col * Constants.colWidth;
     this.y = this.row * Constants.rowHeight - 20;
   }
+
+  currentCell() {
+    return { col: this.col, row: this.row };
+  }
 }
 
-const allEnemies = [
-  new Enemy(1, 1, "other"),
-  new Enemy(2, 1.3),
-  new Enemy(2, 2),
-  new Enemy(3, 0.4, "frank"),
-  new Enemy(3, 1.6)
-];
-const player = new Player(2, 5);
 
 // This listens for key presses and sends the keys to your
 // Player.handleInput() method. You don't need to modify this.
@@ -85,15 +122,19 @@ document.addEventListener("keydown", function(e) {
     37: "left",
     38: "up",
     39: "right",
-    40: "down",
-  }
+    40: "down"
+  };
   const vimKeys = {
     72: "left",
     75: "up",
     76: "right",
-    74: "down",
-  }
-  var allowedKeys = {...arrowKeys, ...vimKeys};
+    74: "down"
+  };
+  var allowedKeys = { ...arrowKeys, ...vimKeys };
 
   player.handleInput(allowedKeys[e.keyCode]);
+});
+
+document.addEventListener("click", function() {
+  // allEnemies.forEach(e => e.debug())
 });
