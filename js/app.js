@@ -80,12 +80,19 @@ const player = new Player(2, 5);
 // This listens for key presses and sends the keys to your
 // Player.handleInput() method. You don't need to modify this.
 document.addEventListener("keydown", function(e) {
-  var allowedKeys = {
+  const arrowKeys = {
     37: "left",
     38: "up",
     39: "right",
-    40: "down"
-  };
+    40: "down",
+  }
+  const vimKeys = {
+    72: "left",
+    75: "up",
+    76: "right",
+    74: "down",
+  }
+  var allowedKeys = {...arrowKeys, ...vimKeys};
 
   player.handleInput(allowedKeys[e.keyCode]);
 });
