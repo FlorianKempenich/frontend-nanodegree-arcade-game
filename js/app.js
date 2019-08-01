@@ -1,6 +1,6 @@
 function resetXPosition() {
   const offScreenRow = -Constants.colWidth;
-  this.x = offScreenRow;
+  this.x = offScreenRow * 2;
 }
 
 class Enemy {
@@ -16,7 +16,7 @@ class Enemy {
 
   update(dt) {
     this.x += 100 * dt * this.speed;
-    if (this.x >= Constants.width && this.debugName !== "") {
+    if (this.x >= Constants.width) {
       resetXPosition.call(this);
     }
   }
