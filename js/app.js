@@ -3,9 +3,19 @@ function resetXPosition() {
   this.x = offScreenRow * 2;
 }
 
-class Enemy {
+class Renderable {
+  constructor(sprite) {
+    this.sprite = sprite;
+  }
+  render() {
+    ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
+  }
+}
+
+class Enemy extends Renderable {
   constructor(row, speed, debugName = "") {
-    this.sprite = "images/enemy-bug.png";
+    super("images/enemy-bug.png");
+
     this.speed = speed;
     this.y = row * Constants.rowHeight - 20; // 20 offset is due to shape of png img for the enemy-bug
     this.x = undefined;
@@ -20,17 +30,42 @@ class Enemy {
       resetXPosition.call(this);
     }
   }
-
-  render() {
-    ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
-  }
 }
 
-class Player {
-  constructor() {}
-  handleInput(direction) {}
-  update() {}
-  render() {}
+class Player extends Renderable {
+  constructor(startCol, startRow) {
+    super("images/char-horn-girl.png");
+    this.col = startCol;
+    this.row = startRow;
+    this.x = undefined;
+    this.y = undefined;
+  }
+  handleInput(direction) {
+    switch (direction) {
+      case "up":
+        this.row -= 1;
+        break;
+
+      case "down":
+        this.row += 1;
+        break;
+
+      case "left":
+        this.col -= 1;
+        break;
+
+      case "right":
+        this.col += 1;
+        break;
+
+      default:
+        throw `Unknown direction: '${direction}'`;
+    }
+  }
+  update() {
+    this.x = this.col * Constants.colWidth;
+    this.y = this.row * Constants.rowHeight - 20;
+  }
 }
 
 const allEnemies = [
@@ -40,11 +75,11 @@ const allEnemies = [
   new Enemy(3, 0.4, "frank"),
   new Enemy(3, 1.6)
 ];
-const player = new Player();
+const player = new Player(2, 5);
 
 // This listens for key presses and sends the keys to your
 // Player.handleInput() method. You don't need to modify this.
-document.addEventListener("keyup", function(e) {
+document.addEventListener("keydown", function(e) {
   var allowedKeys = {
     37: "left",
     38: "up",
