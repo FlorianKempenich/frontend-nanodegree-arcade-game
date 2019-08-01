@@ -17,7 +17,8 @@ class Enemy extends Renderable {
     super("images/enemy-bug.png");
 
     this.speed = speed;
-    this.y = row * Constants.rowHeight - 20; // 20 offset is due to shape of png img for the enemy-bug
+    // 20 offset is due to shape of png img for the enemy-bug
+    this.y = row * Constants.rowHeight - 20;
     this.x = undefined;
     this.debugName = debugName;
 
@@ -43,19 +44,19 @@ class Player extends Renderable {
   handleInput(direction) {
     switch (direction) {
       case "up":
-        this.row -= 1;
+        if (this.row > 0) this.row -= 1;
         break;
 
       case "down":
-        this.row += 1;
+        if (this.row < Constants.numRows - 1) this.row += 1;
         break;
 
       case "left":
-        this.col -= 1;
+        if (this.col > 0) this.col -= 1;
         break;
 
       case "right":
-        this.col += 1;
+        if (this.col < Constants.numCols - 1) this.col += 1;
         break;
 
       default:
